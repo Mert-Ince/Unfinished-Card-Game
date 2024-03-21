@@ -1,5 +1,6 @@
 import pickle
 import os
+import glob
 
 class SaveLoadSystem:
     def __init__(self, file_extension, save_folder):
@@ -36,5 +37,10 @@ class SaveLoadSystem:
     
     def delete_game_data(self, data):
         os.remove(self.save_folder+"/"+data+".save")
+
+    def delete_all_game_data(self):
+        files = glob.glob(self.save_folder+"/*")
+        for file in files:
+            os.remove(file)
     
    

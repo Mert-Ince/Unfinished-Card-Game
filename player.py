@@ -13,15 +13,21 @@ player_y = ((2 * screen.SCREEN_HEIGHT) / 5)
 classes = ["rogue", "masochist", "priest", "hunter"]
 starting_deck = ["attack","attack", "attack", "attack", "block", "block", "weaken", "block", "block", "weaken", "block", "block", "weaken","attack", "attack", "block", "block", "weaken","attack", "attack"]
 max_hp = 40
-hp = max_hp
-strength = 10
+hp = 40
+strength = 0
 starting_potions = 3
 potions = 3
 alive = True
 starting_armor = 0
 armor = starting_armor
-starting_deck = []
+draw_size =5
+
+dmg_to_bosses_and_elites = 1
+lamb = False
+sacrifices = 0
+
 enemies = []
+items = []
 
 image_x = 128
 image_y = 128
@@ -69,8 +75,7 @@ damage_text_group = draw_text.damage_text_group
 def attack_all(target):
     global action
     global frame
-    rand = random.randint(-5, 5)
-    damage = strength + rand
+    damage = strength
     for enemy in enemies:
       enemy.hp -= damage
       enemy.hurt()
@@ -83,11 +88,51 @@ def attack_all(target):
       action = 0
       frame = 0
 
+def lamb_to_the_slaughter(target):
+    if lamb == False:
+        lamb = True
+    elif lamb == True:
+        sacrifices += 1
+
+def unnamed_ritual(target):
+    global action
+    global frame
+    if lamb == True:
+        damage = 13
+        sacrifices += 1
+        lamb = False
+    else:
+        damage = 8 
+    target.hp -= damage
+    target.hurt()
+    if target.hp < 1:
+        target.hp = 0
+        target.alive = False
+        target.dead()
+    damage_text = draw_text.damage_text(target.rect.centerx, target.rect.y, str(damage), fonts.blood_red)
+    damage_text_group.add(damage_text)
+    action = 0
+    frame = 0
+
+def unnamed_ritual_2(target):
+    global action
+    global frame
+    damage = 4 + 2 * sacrifices
+    target.hp -= damage
+    target.hurt()
+    if target.hp < 1:
+        target.hp = 0
+        target.alive = False
+        target.dead()
+    damage_text = draw_text.damage_text(target.rect.centerx, target.rect.y, str(damage), fonts.blood_red)
+    damage_text_group.add(damage_text)
+    action = 0
+    frame = 0
+
 def attack(target):
     global action
     global frame
-    rand = random.randint(-5, 5)
-    damage = strength + rand
+    damage = 7
     target.hp -= damage
     target.hurt()
     if target.hp < 1:
@@ -102,8 +147,7 @@ def attack(target):
 def weaken(target):
     global action
     global frame
-    rand = random.randint(-5, 5)
-    damage = strength + rand
+    damage = strength
     target.hp -= damage
     target.weak_counter = 1
     target.hurt()
@@ -150,7 +194,6 @@ def hearts_burst(target):
     action = 0
     frame = 0
     
-
 def block(target):
     global armor
     armor += 4

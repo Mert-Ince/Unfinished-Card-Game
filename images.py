@@ -1,5 +1,6 @@
 import pygame
 import screen
+import fonts
 
 pygame.init()
 
@@ -25,12 +26,12 @@ def draw_defeat():
         
 def card_img(card_name):
     card_img = pygame.image.load(f'img/cards/{card_name}.png').convert_alpha()
-    card_img = pygame.transform.scale(card_img, (360, 560))
+    card_img = pygame.transform.scale(card_img, (270, 420))
     return card_img
 
 def card_img_sm(card_name):
     card_img = pygame.image.load(f'img/cards/{card_name}.png').convert_alpha()
-    card_img = pygame.transform.scale(card_img, (180, 280))
+    card_img = pygame.transform.scale(card_img, (135, 210))
     return card_img
 
 potion_img = pygame.image.load('img/icons/potion2.png').convert_alpha()
@@ -40,3 +41,25 @@ play_img = pygame.image.load('img/icons/play.png').convert_alpha()
 settings_img = pygame.image.load('img/icons/settings.png').convert_alpha()
 armor_img = pygame.image.load('img/icons/armor.png').convert_alpha()
 armor_img = pygame.transform.scale(armor_img, (52, 69))
+poison_img = pygame.image.load('img/icons/poison.png').convert_alpha()
+combat_img = pygame.image.load('img/icons/combat.png').convert_alpha()
+treasure_img = pygame.image.load('img/icons/treasure.png').convert_alpha()
+boss_img = pygame.image.load('img/icons/boss.png').convert_alpha()
+gauntlet_img = pygame.image.load('img/icons/items/gauntlet.png').convert_alpha()
+discard_img = pygame.image.load('img/icons/discard.png').convert_alpha()
+deck_img = pygame.image.load('img/icons/deck.png').convert_alpha()
+draw_deck_img = pygame.image.load('img/icons/draw_deck.png').convert_alpha()
+exit_img = pygame.image.load('img/icons/exit.png').convert_alpha()
+
+def get_icon(name):
+    return pygame.image.load("img/icons/" + name + ".png").convert_alpha()
+
+def get_item(name):
+    return pygame.image.load("img/icons/items/" + name + ".png").convert_alpha()
+
+def get_bar_item(name):
+    image = pygame.image.load("img/icons/items/" + name + ".png").convert_alpha()
+    return pygame.transform.scale(image, (64, 64))
+
+def get_text_img(name, color):
+    return fonts.font_menu.render(name, True, color)

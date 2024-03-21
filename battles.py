@@ -4,3 +4,7 @@ import enemies.onre as onre
 battle_1 = [yurei, onre]
 battle_2 = [yurei]
 battle_3 = [onre]
+
+boss_battle_1 = [yurei, onre]
+boss_battle_1 = [yurei, onre]
+boss_battle_1 = [yurei, onre]
