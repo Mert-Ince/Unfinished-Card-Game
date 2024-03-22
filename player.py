@@ -9,19 +9,21 @@ BLACK = (0, 0, 0)
 
 player_x = 100
 player_y = ((2 * screen.SCREEN_HEIGHT) / 5)
-
-classes = ["rogue", "masochist", "priest", "hunter"]
-starting_deck = ["attack","attack", "attack", "attack", "block", "block", "weaken", "block", "block", "weaken", "block", "block", "weaken","attack", "attack", "block", "block", "weaken","attack", "attack"]
+potion_pool =  []
+card_pool = ["lamb_to_the_slaughter", "unnamed_ritual", "unnamed_ritual_2"]
+starting_deck = ["attack","attack", "attack", "attack", "block", "block", "block", "block", "block", "attack", "lamb_to_the_slaughter", "unnamed_ritual"]
 max_hp = 40
 hp = 40
 strength = 0
 starting_potions = 3
-potions = 3
+potions = 1
 alive = True
 starting_armor = 0
 armor = starting_armor
 draw_size =5
+mana = 3
 
+damage_multiplier = 1
 dmg_to_bosses_and_elites = 1
 lamb = False
 sacrifices = 0
@@ -75,7 +77,7 @@ damage_text_group = draw_text.damage_text_group
 def attack_all(target):
     global action
     global frame
-    damage = strength
+    damage = 5 + strength
     for enemy in enemies:
       enemy.hp -= damage
       enemy.hurt()
@@ -89,6 +91,8 @@ def attack_all(target):
       frame = 0
 
 def lamb_to_the_slaughter(target):
+    global lamb
+    global sacrifices
     if lamb == False:
         lamb = True
     elif lamb == True:
@@ -97,12 +101,14 @@ def lamb_to_the_slaughter(target):
 def unnamed_ritual(target):
     global action
     global frame
+    global lamb
+    global sacrifices
     if lamb == True:
-        damage = 13
+        damage = 13 + strength
         sacrifices += 1
         lamb = False
     else:
-        damage = 8 
+        damage = 8 + strength
     target.hp -= damage
     target.hurt()
     if target.hp < 1:
@@ -117,7 +123,7 @@ def unnamed_ritual(target):
 def unnamed_ritual_2(target):
     global action
     global frame
-    damage = 4 + 2 * sacrifices
+    damage = 4 + 2 * sacrifices + strength
     target.hp -= damage
     target.hurt()
     if target.hp < 1:
@@ -132,7 +138,7 @@ def unnamed_ritual_2(target):
 def attack(target):
     global action
     global frame
-    damage = 7
+    damage = 7 + strength
     target.hp -= damage
     target.hurt()
     if target.hp < 1:

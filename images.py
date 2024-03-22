@@ -1,6 +1,7 @@
 import pygame
 import screen
 import fonts
+import screen
 
 pygame.init()
 

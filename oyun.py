@@ -3,14 +3,13 @@ import images
 import player
 import screen
 import button
-import spritesheet
 import draw_text
 import fonts
 import random
 from save import SaveLoadSystem
 import battles
 import sounds
-import items
+import items_and_potions
 
 pygame.init()
 
@@ -25,9 +24,6 @@ pygame.display.set_caption("Sprite Groups"),
 
 cards = pygame.sprite.Group()
 tooltip_text_group = draw_text.tooltip_text_group
-
-game_uninteractable = False
-paused = False
 
 current_deck = player.starting_deck
 deck = current_deck
@@ -44,19 +40,17 @@ def combat(enemy_type):
   potions_effect = 15
   game_over = 0
   button_pressed = ""
+  game_uninteractable = False
+  paused = False
+  round_ended = False
+  card_select = True
   
   potion_button = button.Button(window, 100, 900, images.potion_img, 42, 69)
-  restart_button = button.Button_Text(window, 896, 600, "next")
+  restart_button = button.Button_Text(window, 880, 745, "next")
   end_button = button.Button(window, 1700, 755, images.end_img, 133, 92)
   discard_button = button.Button(window, 1700, 1000, images.discard_img, 133, 92)
-  deck_button = button.Button(window, 1700, 0, images.deck_img, 133, 92)
   draw_deck_button = button.Button(window, 100, 1000, images.draw_deck_img, 133, 92)
-  exit_button = button.Button(window, 1700, 200, images.exit_img, 50, 50)
   damage_text_group = draw_text.damage_text_group
-  continue_button = button.Pause_Button_Text(window, (6 * screen_w / 14), (5 * screen_h / 24), "Continue")
-  menu_button = button.Pause_Button_Text(window, (6 * screen_w / 14), (8 * screen_h / 24), "Main Menu")
-  settings_button = button.Pause_Button_Text(window, (6 * screen_w / 14), (11 * screen_h / 24), "Settings")
-  quit_button = button.Pause_Button_Text(window, (6 * screen_w / 14), (14 * screen_h / 24), "Quit")
   
   hand_sizes = [891, 786, 693, 627, 570, 525, 492, 471, 462, 465]
   round_start = True
@@ -77,7 +71,7 @@ def combat(enemy_type):
   
   def requires_target(card_name):
     # List of cards that require a target
-    cards_requiring_target = ["poisoned_shiv", "hearts_burst", "attack", "weaken"]
+    cards_requiring_target = ["poisoned_shiv", "hearts_burst", "attack", "weaken", "unnamed_ritual", "unnamed_ritual_2"]
 
     # Check if the card is in the list
     return card_name in cards_requiring_target
@@ -167,7 +161,7 @@ def combat(enemy_type):
           item = button.ItemBar(window, 50 + (100 * i), 50, images.get_item(player.items[i]), 64, 64)
           if item.draw():
             if len(tooltip_text_group) <= 1:
-             tooltip_text = draw_text.tooltip_text(player.rect.centerx, player.rect.y, items.descriptions[player.items[i]], fonts.white)
+             tooltip_text = draw_text.tooltip_text(player.rect.centerx, player.rect.y, items_and_potions.descriptions[player.items[i]], fonts.white)
              tooltip_text_group.add(tooltip_text)
 
     screen.blit(images.armor_img, (95, 800))
@@ -218,7 +212,7 @@ def combat(enemy_type):
         button_pressed = 'discard'
         game_uninteractable = True
         
-    if deck_button.draw():
+    if button.deck_button.draw():
      if game_uninteractable == False:       
       button_pressed = 'deck'
       game_uninteractable = True
@@ -240,7 +234,7 @@ def combat(enemy_type):
 
     if game_uninteractable:
      if paused == False:
-      if exit_button.draw():
+      if button.exit_button.draw():
        game_uninteractable = False
       s = pygame.Surface((screen_w, screen_h))  # the size of your rect
       s.set_alpha(128)                # alpha level
@@ -268,14 +262,14 @@ def combat(enemy_type):
       s.set_alpha(256)                # alpha level
       s.fill((0,0,0))           # this fills the entire surface
       screen.blit(s, (0,0))
-      if continue_button.draw():
+      if button.continue_button.draw():
         game_uninteractable = False
         paused = False
-      if menu_button.draw():
+      if button.menu_button.draw():
         pass
-      if settings_button.draw():
+      if button.settings_button.draw():
         pass
-      if quit_button.draw():
+      if button.quit_button.draw():
         pygame.quit()
   
     for count, enemy in enumerate(enemy_list):
@@ -344,7 +338,16 @@ def combat(enemy_type):
 
     if game_over != 0:
           if game_over == 1:
-              images.draw_victory()
+              card_1 = button.Button(window, 600, 300, images.card_img(player.card_pool[0]), 270, 420)
+              card_2 = button.Button(window, 1000, 300, images.card_img(player.card_pool[1]), 270, 420)
+              if card_select == True:
+                if card_1.draw():
+                  player.deck.append(player.card_pool[0])
+                  print("here")
+                  card_select = False
+                if card_2.draw():
+                  player.deck.append(player.card_pool[1])
+                  card_select = False
               if restart_button.draw():
                  save_load_manager.delete_game_data("enemies_data")
                  cards_in_hand.clear()
@@ -407,17 +410,20 @@ def combat(enemy_type):
     pygame.display.flip()
 
 def treasure():
+   game_uninteractable = False
+   paused = False
    choice = []
-   rng_1 = random.randint(0, len(items.items) - 1)
-   item_name_1 = items.items[rng_1]
+   button_pressed = ""
+   rng_1 = random.randint(0, len(items_and_potions.items) - 1)
+   item_name_1 = items_and_potions.items[rng_1]
    item_1 = button.Button(window, 632, 412, images.get_item(item_name_1), 256, 256)
-   choice.append(items.items[rng_1])
-   items.items.pop(rng_1)
-   rng_2 = random.randint(0, len(items.items) - 1)
-   item_name_2 = items.items[rng_2]
+   choice.append(items_and_potions.items[rng_1])
+   items_and_potions.items.pop(rng_1)
+   rng_2 = random.randint(0, len(items_and_potions.items) - 1)
+   item_name_2 = items_and_potions.items[rng_2]
    item_2 = button.Button(window, 1032, 412, images.get_item(item_name_2), 256, 256)
-   choice.append(items.items[rng_2])
-   items.items.pop(rng_2)
+   choice.append(items_and_potions.items[rng_2])
+   items_and_potions.items.pop(rng_2)
    check_save = True
 
    while True:
@@ -433,36 +439,91 @@ def treasure():
           item = button.ItemBar(window, 50 + (100 * i), 50, images.get_item(player.items[i]), 64, 64)
           if item.draw():
             if len(tooltip_text_group) <= 1:
-             tooltip_text = draw_text.tooltip_text(player.rect.centerx, player.rect.y, items.descriptions[player.items[i]], fonts.white)
+             tooltip_text = draw_text.tooltip_text(player.rect.centerx, player.rect.y, items_and_potions.descriptions[player.items[i]], fonts.white)
              tooltip_text_group.add(tooltip_text)
 
-      draw_text.draw_desc(items.descriptions[choice[0]], fonts.font_desc, fonts.white, 760, 712)
-      draw_text.draw_desc(items.descriptions[choice[1]], fonts.font_desc, fonts.white, 1160, 712)
+      draw_text.draw_desc(items_and_potions.descriptions[choice[0]], fonts.font_desc, fonts.white, 760, 712)
+      draw_text.draw_desc(items_and_potions.descriptions[choice[1]], fonts.font_desc, fonts.white, 1160, 712)
 
       if item_1.draw():
-         getattr(items, item_name_1)()
+         getattr(items_and_potions, item_name_1)()
          player.items.append(choice[0])
-         items.items.append(choice[1])
+         items_and_potions.items.append(choice[1])
          choice.clear()
          map()
       if item_2.draw():
-         getattr(items, item_name_2)()
+         getattr(items_and_potions, item_name_2)()
          player.items.append(choice[1])
-         items.items.append(choice[0])
+         items_and_potions.items.append(choice[0])
          choice.clear()
          map()
       
       tooltip_text_group.update()
       tooltip_text_group.draw(window)
 
-      for event in pygame.event.get():
-         if event.type == pygame.QUIT:
-            pygame.quit()
-      pygame.display.update()
+      if button.deck_button.draw():
+       if game_uninteractable == False:       
+        button_pressed = 'deck'
+        game_uninteractable = True
+
+      if game_uninteractable:
+       if paused == False:
+        if button.exit_button.draw():
+          game_uninteractable = False
+        s = pygame.Surface((screen_w, screen_h))  # the size of your rect
+        s.set_alpha(128)                # alpha level
+        s.fill((0,0,0))           # this fills the entire surface
+        screen.blit(s, (0,0))
+        card_count = 0
+        if button_pressed == 'discard':
+          card_list = discard
+        elif button_pressed == 'deck':
+          card_list = current_deck
+        elif button_pressed == 'deck_draw':
+          card_list = deck
+        else:
+          card_list = []
+        for y in range(10):
+          for x in range(5):
+              if card_count == len(card_list):
+                  break 
+              screen.blit(images.card_img_sm(card_list[card_count]), (200 + (x * 250), 200 + (y * 300)))
+              card_count += 1
+          if card_count == len(card_list):
+              break
+      elif paused == True:
+        s = pygame.Surface((screen_w, screen_h))  # the size of your rect
+        s.set_alpha(256)                # alpha level
+        s.fill((0,0,0))           # this fills the entire surface
+        screen.blit(s, (0,0))
+        if button.continue_button.draw():
+          game_uninteractable = False
+          paused = False
+        if button.menu_button.draw():
+          pass
+        if button.settings_button.draw():
+          pass
+        if button.quit_button.draw():
+          pygame.quit()
+
+      event_list = pygame.event.get()
+      for event in event_list:
+        if event.type == pygame.KEYDOWN:
+          if event.key == pygame.K_ESCAPE:
+            if paused == False:
+              paused = True
+              game_uninteractable = True
+            else:
+              paused = False
+              game_uninteractable = False
+        if event.type == pygame.QUIT:
+          pygame.quit()
+        pygame.display.update()
       
 def situational():
    check_save = True
-
+   game_uninteractable = False
+   paused = False
    while True:
       if check_save == True:
         game_state = "situational"
@@ -473,17 +534,32 @@ def situational():
           item = button.ItemBar(window, 50 + (100 * i), 50, images.get_item(player.items[i]), 64, 64)
           if item.draw():
             if len(tooltip_text_group) <= 1:
-             tooltip_text = draw_text.tooltip_text(player.rect.centerx, player.rect.y, items.descriptions[player.items[i]], fonts.white)
+             tooltip_text = draw_text.tooltip_text(player.rect.centerx, player.rect.y, items_and_potions.descriptions[player.items[i]], fonts.white)
              tooltip_text_group.add(tooltip_text)
 
       tooltip_text_group.update()
       tooltip_text_group.draw(window)
+      event_list = pygame.event.get()
+      for event in event_list:
+        if event.type == pygame.KEYDOWN:
+          if event.key == pygame.K_ESCAPE:
+            if paused == False:
+              paused = True
+              game_uninteractable = True
+            else:
+              paused = False
+              game_uninteractable = False
+        if event.type == pygame.QUIT:
+          pygame.quit()
+        pygame.display.update()
 
 def map():
    
    NODE_RADIUS = 6
    LINE_WIDTH = 2
-
+   
+   game_uninteractable = False
+   paused = False
    map_gen = {}
    map_node = []
    map_data = []
@@ -549,7 +625,7 @@ def map():
           item = button.ItemBar(window, 50 + (100 * i), 50, images.get_item(player.items[i]), 64, 64)
           if item.draw():
             if len(tooltip_text_group) <= 1:
-             tooltip_text = draw_text.tooltip_text(player.rect.centerx, player.rect.y, items.descriptions[player.items[i]], fonts.white)
+             tooltip_text = draw_text.tooltip_text(player.rect.centerx, player.rect.y, items_and_potions.descriptions[player.items[i]], fonts.white)
              tooltip_text_group.add(tooltip_text)
 
       if generate_map == True:
@@ -671,10 +747,24 @@ def map():
                 situational()
 
       scroll = 0
+      event_list = pygame.event.get()
+      for event in event_list:
+        if event.type == pygame.KEYDOWN:
+          if event.key == pygame.K_ESCAPE:
+            if paused == False:
+              paused = True
+              game_uninteractable = True
+            else:
+              paused = False
+              game_uninteractable = False
+        if event.type == pygame.QUIT:
+          pygame.quit()
 
       pygame.display.update()
 
 def town():
+  game_uninteractable = False
+  paused = False
   check_save = True
   temple_button = button.Button_Text(window, (6 * screen_w / 14), (5 * screen_h / 24), "Temple")
   merchant_button = button.Button_Text(window, (6 * screen_w / 14), (7 * screen_h / 24), "Merchant")
@@ -693,7 +783,7 @@ def town():
         item = button.ItemBar(window, 50 + (100 * i), 50, images.get_item(player.items[i]), 64, 64)
         if item.draw():
           if len(tooltip_text_group) <= 1:
-            tooltip_text = draw_text.tooltip_text(player.rect.centerx, player.rect.y, items.descriptions[player.items[i]], fonts.white)
+            tooltip_text = draw_text.tooltip_text(player.rect.centerx, player.rect.y, items_and_potions.descriptions[player.items[i]], fonts.white)
             tooltip_text_group.add(tooltip_text)
 
     if temple_button.draw():
@@ -719,9 +809,18 @@ def town():
       #campfire() this will be where the player can rest.
       map()
 
-    for event in pygame.event.get():
-      if event.type == pygame.QUIT:
-        pygame.quit()
+      event_list = pygame.event.get()
+      for event in event_list:
+        if event.type == pygame.KEYDOWN:
+          if event.key == pygame.K_ESCAPE:
+            if paused == False:
+              paused = True
+              game_uninteractable = True
+            else:
+              paused = False
+              game_uninteractable = False
+        if event.type == pygame.QUIT:
+          pygame.quit()
     pygame.display.update()
 
 def main_menu():
@@ -759,4 +858,4 @@ def main_menu():
             pygame.quit()
       pygame.display.update()
 
-town()
+main_menu()

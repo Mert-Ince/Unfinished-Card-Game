@@ -3,6 +3,10 @@ import fonts
 import images
 import screen
 
+window = screen.screen
+screen_h = screen.SCREEN_HEIGHT
+screen_w = screen.SCREEN_WIDTH
+
 class Button():
 	def __init__(self, surface, x, y, image, size_x, size_y):
 		self.image = pygame.transform.scale(image, (size_x, size_y))
@@ -115,3 +119,11 @@ class ItemBar():
 		self.surface.blit(self.image, (self.rect.x, self.rect.y))
 
 		return action
+
+continue_button = Pause_Button_Text(window, (6 * screen_w / 14), (5 * screen_h / 24), "Continue")
+menu_button = Pause_Button_Text(window, (6 * screen_w / 14), (8 * screen_h / 24), "Main Menu")
+settings_button = Pause_Button_Text(window, (6 * screen_w / 14), (11 * screen_h / 24), "Settings")
+quit_button = Pause_Button_Text(window, (6 * screen_w / 14), (14 * screen_h / 24), "Quit")
+select_button = Pause_Button_Text(window, (6 * screen_w / 14), (20 * screen_h / 24), "Select")
+deck_button = Button(window, 1700, 0, images.deck_img, 133, 92)
+exit_button = Button(window, 1700, 200, images.exit_img, 50, 50)
