@@ -1,1 +1,1 @@
-
+This is a slay the spire copy game i developed for a month or two using pygame. Its not close to being finished and the artworks are pretty much non-existent. I might continue some day but not my priority right now. 
